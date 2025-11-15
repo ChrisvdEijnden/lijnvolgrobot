@@ -260,5 +260,3 @@ except Exception as e:
 finally:
     screen.clean()
     motor.stop()
-    print("toedeloe")
-
