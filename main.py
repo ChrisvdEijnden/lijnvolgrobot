@@ -138,53 +138,6 @@ class IR:
 ir = IR()
 
 
-class Screen:
-    """
-    Display handler responsible for showing sensor data on OLED screens.
-
-    The system uses two SSD1306-based I2C displays for live debugging
-    and monitoring of sensor output.
-    """
-
-    def __init__(self):
-        """Initialize the two OLED displays on separate I2C channels."""
-        self.oled = SSD1306I2C(width=128, height=32, channel=6)
-        self.oled2 = SSD1306I2C(width=128, height=32, channel=7)
-
-    def fill_screen(self):
-        """Render all current TOF and IR sensor readings onto both displays."""
-        self.oled.fill(0)
-        self.oled2.fill(0)
-
-        self.oled.text(f"{tof.tof_distances()}", 0, 0)
-        self.oled.text(f"{tof.is_ball()}", 0, 10)
-        self.oled.text(f"{tof.angle_robot():.2f} deg", 0, 20)
-
-        self.oled2.text(f"{ir.ir_values()}", 0, 0)
-        self.oled2.text(f"{ir.ir_colors()}", 0, 10)
-
-        self.oled.show()
-        self.oled2.show()
-
-    def clean(self):
-        """Clear both OLED displays."""
-        self.oled.fill(0)
-        self.oled.show()
-        self.oled2.fill(0)
-        self.oled2.show()
-
-    def terminal_prints(self):
-        """Print all sensor data to the terminal for debugging."""
-        print(f"TOF: {tof.tof_distances()}")
-        print(f"Ball: {tof.is_ball()}")
-        print(f"Angle: {tof.angle_robot():.2f}")
-        print(f"IR: {ir.ir_values()}")
-        print(f"Color: {ir.ir_colors()}\n")
-
-
-screen = Screen()
-
-
 class Action:
     """
     Decision-making engine for robot movement.
@@ -230,9 +183,60 @@ class Action:
         for i, state in enumerate(self.situations()):
             if state:
                 return self.actions[i]()
+    
+    def print_move(self):
+        return self.move().replace("motor.", "")
 
 
 action = Action()
+
+
+class Screen:
+    """
+    Display handler responsible for showing sensor data on OLED screens.
+
+    The system uses two SSD1306-based I2C displays for live debugging
+    and monitoring of sensor output.
+    """
+
+    def __init__(self):
+        """Initialize the two OLED displays on separate I2C channels."""
+        self.oled = SSD1306I2C(width=128, height=32, channel=6)
+        self.oled2 = SSD1306I2C(width=128, height=32, channel=7)
+
+    def fill_screen(self):
+        """Render all current TOF and IR sensor readings onto both displays."""
+        self.oled.fill(0)
+        self.oled2.fill(0)
+
+        self.oled.text(f"{tof.tof_distances()}", 0, 0)
+        self.oled.text(f"{tof.is_ball()}", 0, 10)
+        self.oled.text(f"{tof.angle_robot():.2f} deg", 0, 20)
+
+        self.oled2.text(f"{ir.ir_values()}", 0, 0)
+        self.oled2.text(f"{ir.ir_colors()}", 0, 10)
+        self.oled2.text(f"{action.print_move()}", 0, 20)
+
+        self.oled.show()
+        self.oled2.show()
+
+    def clean(self):
+        """Clear both OLED displays."""
+        self.oled.fill(0)
+        self.oled.show()
+        self.oled2.fill(0)
+        self.oled2.show()
+
+    def terminal_prints(self):
+        """Print all sensor data to the terminal for debugging."""
+        print(f"TOF: {tof.tof_distances()}")
+        print(f"Ball: {tof.is_ball()}")
+        print(f"Angle: {tof.angle_robot():.2f}")
+        print(f"IR: {ir.ir_values()}")
+        print(f"Color: {ir.ir_colors()}\n")
+
+
+screen = Screen()
 
 
 def main():
@@ -243,9 +247,9 @@ def main():
     evaluates the current situation, and triggers movement logic.
     """
     while True:
+        action.move()
         screen.fill_screen()
         screen.terminal_prints()
-        action.move()
         sleep(0.01)
 
 
