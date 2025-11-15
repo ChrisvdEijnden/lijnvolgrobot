@@ -14,7 +14,8 @@ from leaphymicropython.sensors.tof import TimeOfFlight
 
 
 class Motor:
-    """Controls the robot's dual DC motor system.
+    """
+    Controls the robot's dual DC motor system.
 
     This class provides simple high-level movement commands such as
     forward, backward, turning, and stopping, by controlling two
@@ -67,7 +68,8 @@ motor = Motor()
 
 
 class TOF:
-    """Handles Time-of-Flight (TOF) distance sensors for obstacle detection.
+    """
+    Handles Time-of-Flight (TOF) distance sensors for obstacle detection.
 
     Provides access to the raw distances, as well as higher-level
     calculations such as angular deviation and ball detection heuristics.
@@ -107,7 +109,8 @@ tof = TOF()
 
 
 class IR:
-    """Interface for the robot's analog infrared line sensors.
+    """
+    Interface for the robot's analog infrared line sensors.
 
     Responsible for reading raw analog values and converting them into
     binary black/white classifications.
@@ -136,7 +139,8 @@ ir = IR()
 
 
 class Screen:
-    """Display handler responsible for showing sensor data on OLED screens.
+    """
+    Display handler responsible for showing sensor data on OLED screens.
 
     The system uses two SSD1306-based I2C displays for live debugging
     and monitoring of sensor output.
@@ -182,7 +186,8 @@ screen = Screen()
 
 
 class Action:
-    """Decision-making engine for robot movement.
+    """
+    Decision-making engine for robot movement.
 
     Evaluates sensor states to determine which motor action should be
     executed under the current conditions.
@@ -193,15 +198,16 @@ class Action:
         self.actions = {
             0: motor.forwards,
             1: motor.far_left,
-            2: motor.left,
-            3: motor.right,
-            4: motor.far_right,
+            2: motor.far_right,
+            3: motor.left,
+            4: motor.right,
             5: motor.backwards,
             6: motor.stop,
         }
 
     def situations(self):
-        """Evaluate all movement-related sensor conditions.
+        """
+        Evaluate all movement-related sensor conditions.
 
         Returns a list of boolean flags representing discrete situations,
         such as line detection, edge detection, and obstacle proximity.
@@ -230,7 +236,8 @@ action = Action()
 
 
 def main():
-    """Main execution loop for the robot.
+    """
+    Main execution loop for the robot.
 
     Continuously updates the display, prints sensor data,
     evaluates the current situation, and triggers movement logic.
