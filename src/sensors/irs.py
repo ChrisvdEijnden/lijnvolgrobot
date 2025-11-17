@@ -11,10 +11,10 @@ class IR:
     def __init__(self):
         """Initialize four analog IR sensors with configurable thresholds."""
         self.irs = [
-            AnalogIR("A0", 2500),
-            AnalogIR("A1", 2500),
-            AnalogIR("A2", 2500),
-            AnalogIR("A3", 2500),
+            AnalogIR("A0", 10000), # Far left
+            AnalogIR("A1", 10000), # Left
+            AnalogIR("A2", 10000), # Right
+            AnalogIR("A3", 10000), # Far right
         ]
 
     def ir_values(self):
