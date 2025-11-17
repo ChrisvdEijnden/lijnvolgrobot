@@ -28,7 +28,7 @@ class TOF:
         The angle is derived from the difference between left and right
         TOF sensors and calibrated for robot geometry.
         """
-        return math.degrees(math.atan(self.delta_left_right() * 3 / 47))
+        return math.degrees(math.atan(self.delta_left_right() * 43 / 3))
 
     def is_ball(self):
         """Heuristically detect whether a ball is present in front of the robot.
@@ -37,5 +37,6 @@ class TOF:
         """
         dist = self.tof_distances()
         return self.delta_left_right() / 2 - 70 - dist[2] > 60
+
 
 tof = TOF()
