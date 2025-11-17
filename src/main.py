@@ -6,7 +6,7 @@ Some rights reserved.
 """
 
 from time import sleep
-import src.sensors.tofs as tofs
+import src.sensors.tof as tof
 import sensors.irs as ir
 import actuators.motors as motor
 from leaphymicropython.actuators.ssd1306 import SSD1306I2C
@@ -39,7 +39,7 @@ class Action:
         such as line detection, edge detection, and obstacle proximity.
         """
         colors = ir.ir_colors()
-        d = tofs.tof_distances()
+        d = tof.tof_distances()
 
         return [
             colors == ['W', 'W', 'W', 'W'],
@@ -82,9 +82,9 @@ class Screen:
         self.oled.fill(0)
         self.oled2.fill(0)
 
-        self.oled.text(f"{tofs.tof_distances()}", 0, 0)
-        self.oled.text(f"{tofs.is_ball()}", 0, 10)
-        self.oled.text(f"{tofs.angle_robot():.2f} deg", 0, 20)
+        self.oled.text(f"{tof.tof_distances()}", 0, 0)
+        self.oled.text(f"{tof.is_ball()}", 0, 10)
+        self.oled.text(f"{tof.angle_robot():.2f} deg", 0, 20)
 
         self.oled2.text(f"{ir.ir_values()}", 0, 0)
         self.oled2.text(f"{ir.ir_colors()}", 0, 10)
@@ -102,9 +102,9 @@ class Screen:
 
     def terminal_prints(self):
         """Print all sensor data to the terminal for debugging."""
-        print(f"TOF: {tofs.tof_distances()}")
-        print(f"Ball: {tofs.is_ball()}")
-        print(f"Angle: {tofs.angle_robot():.2f}")
+        print(f"TOF: {tof.tof_distances()}")
+        print(f"Ball: {tof.is_ball()}")
+        print(f"Angle: {tof.angle_robot():.2f}")
         print(f"IR: {ir.ir_values()}")
         print(f"Color: {ir.ir_colors()}")
         print(f"{action.print_move()}\n")
