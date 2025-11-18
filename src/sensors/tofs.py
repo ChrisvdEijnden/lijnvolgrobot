@@ -25,7 +25,7 @@ class TOF:
     def angle(self):
         """Return the angle of the robot"""
         dist = self.tof_distances()
-        return math.degrees(atan(self.delta_left_right()/(43/3)))
+        return math.degrees(math.atan(self.delta_left_right()/(43/3)))
 
     def is_ball(self):
         """Heuristically detect whether a ball is present in front of the robot.
@@ -37,6 +37,7 @@ class TOF:
 
 
 tof = TOF()
+
 
 
 
