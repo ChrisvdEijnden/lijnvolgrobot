@@ -11,54 +11,45 @@ import sensors.irs as ir
 import actuators.motors as motor
 from leaphymicropython.actuators.ssd1306 import SSD1306I2C
 
+
 class Action:
-    """
-    Decision-making engine for robot movement.
-
-    Evaluates sensor states to determine which motor action should be
-    executed under the current conditions.
-    """
-
     def __init__(self):
-        """Map situation indices to corresponding motor actions."""
         self.actions = {
-            0: motor.forwards,
-            1: motor.far_left,
-            2: motor.far_right,
-            3: motor.left,
-            4: motor.right,
-            5: motor.backwards,
+            0: motor.backwards,
+            1: motor.forwards,
+            2: motor.far_left,
+            3: motor.far_right,
+            4: motor.left,
+            5: motor.right,
             6: motor.stop,
         }
+        self.last_action = None
 
     def situations(self):
-        """
-        Evaluate all movement-related sensor conditions.
-
-        Returns a list of boolean flags representing discrete situations,
-        such as line detection, edge detection, and obstacle proximity.
-        """
         colors = ir.ir_colors()
         d = tof.tof_distances()
-
         return [
+            d[1] <= 40 or d[3] <= 40,
             colors == ['W', 'W', 'W', 'W'],
             colors[0] == 'B',
             colors[3] == 'B',
             colors[1] == 'B',
             colors[2] == 'B',
-            d[1] <= 40 or d[3] <= 40,
             False
         ]
 
     def move(self):
-        """Execute the motor action that corresponds to the first true situation."""
+        """Execute the first matching action, store its name and return it."""
         for i, state in enumerate(self.situations()):
             if state:
-                return self.actions[i]()
-    
+                action_fn = self.actions[i]
+                action_fn()
+                self.last_action = action_fn.__name__
+                return self.last_action
+        return self.last_action
+
     def print_move(self):
-        return self.move().replace("motor.", "")
+        return self.last_action or "None"
 
 
 action = Action()
