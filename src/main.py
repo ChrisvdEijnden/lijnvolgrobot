@@ -78,19 +78,27 @@ class Screen:
         self.oled2 = SSD1306I2C(width=128, height=32, channel=7)
 
     def fill_screen(self):
-        """Render all current TOF and IR sensor readings onto both displays."""
         self.oled.fill(0)
         self.oled2.fill(0)
 
         self.oled.text(f"{tof.tof_distances()}", 0, 0)
-        self.oled.text(f"{tof.is_ball()}", 0, 10)
+        self.oled.text(f"Ball: {tof.is_ball()}", 0, 10)
+        self.oled.text(f"Angle: {tof.angle():.2f}", 0, 20)
 
         self.oled2.text(f"{ir.ir_values()}", 0, 0)
-        self.oled2.text(f"{ir.ir_colors()}", 0, 10)
+        self.oled2.text(f"{ir.print_ir()}", 0, 10)
         self.oled2.text(f"{action.print_move()}", 0, 20)
 
         self.oled.show()
         self.oled2.show()
+
+    def terminal_prints(self):
+        print(f"TOF: {tof.tof_distances()}")
+        print(f"Ball: {tof.is_ball()}")
+        print(f"IR: {ir.ir_values()}")
+        print(f"Color: {ir.print_ir()}")
+        print(f"Angle: {tof.angle():.2f}")
+        print(f"{action.print_move()}\n")
 
     def clean(self):
         """Clear both OLED displays."""
