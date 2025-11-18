@@ -22,14 +22,6 @@ class TOF:
         dist = self.tof_distances()
         return dist[3] - dist[1]
 
-    def angle_robot(self):
-        """Estimate the robot's angular deviation in degrees.
-
-        The angle is derived from the difference between left and right
-        TOF sensors and calibrated for robot geometry.
-        """
-        return math.degrees(math.atan(self.delta_left_right() * 43 / 3))
-
     def is_ball(self):
         """Heuristically detect whether a ball is present in front of the robot.
 
@@ -40,3 +32,4 @@ class TOF:
 
 
 tof = TOF()
+
