@@ -84,7 +84,6 @@ class Screen:
 
         self.oled.text(f"{tof.tof_distances()}", 0, 0)
         self.oled.text(f"{tof.is_ball()}", 0, 10)
-        self.oled.text(f"{tof.angle_robot():.2f} deg", 0, 20)
 
         self.oled2.text(f"{ir.ir_values()}", 0, 0)
         self.oled2.text(f"{ir.ir_colors()}", 0, 10)
@@ -104,7 +103,6 @@ class Screen:
         """Print all sensor data to the terminal for debugging."""
         print(f"TOF: {tof.tof_distances()}")
         print(f"Ball: {tof.is_ball()}")
-        print(f"Angle: {tof.angle_robot():.2f}")
         print(f"IR: {ir.ir_values()}")
         print(f"Color: {ir.ir_colors()}")
         print(f"{action.print_move()}\n")
