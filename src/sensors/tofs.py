@@ -19,26 +19,30 @@ class TOF:
 
     def delta_left_right(self):
         """Return the difference between the right-side and left-side sensor distances."""
-        dist = self.tof_distances()
-        return dist[3] - dist[1]
+        try:
+            dist = self.tof_distances()
+            return dist[3] - dist[1]
+        except ValueError:
+            return None
 
     def angle(self):
         """Return the angle of the robot"""
-        dist = self.tof_distances()
-        return math.degrees(math.atan(self.delta_left_right()/(43/3)))
+        try:
+            dist = self.tof_distances()
+            return math.degrees(math.atan(self.delta_left_right()/(43/3)))
+        except ValueError:
+            return None
 
     def is_ball(self):
         """Heuristically detect whether a ball is present in front of the robot.
 
         The logic uses specific offsets and thresholds based on sensor readings.
         """
-        dist = self.tof_distances()
-        return self.delta_left_right() / 2 - 70 - dist[2] > 60
+        try:
+            dist = self.tof_distances()
+            return self.delta_left_right() / 2 - 70 - dist[2] > 60
+        except ValueError:
+            return None
 
 
 tof = TOF()
-
-
-
-
-
