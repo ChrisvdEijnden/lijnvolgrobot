@@ -1,8 +1,7 @@
 """
-G1 Robot – Line-Following and Obstacle Detection System
+G1 Robot – Line-Following Robot
 © 2026 Chris van den Eijnden
 J.C. Automotive Technologies & Cloud Development.
-Some rights reserved.
 """
 
 from time import sleep
