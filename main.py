@@ -1,10 +1,11 @@
 """
-G1 Robot – Line-Following Robot
+G1 Robot – Line-Following and Obstacle Detection System
 © 2026 Chris van den Eijnden
 J.C. Automotive Technologies & Cloud Development.
+Some rights reserved.
 """
 
-from time import sleep
+from time import sleep, time
 from leaphymicropython.sensors.linesensor import AnalogIR
 from leaphymicropython.sensors.tof import TimeOfFlight
 from leaphymicropython.actuators.oled_screen import OLEDSH1106
@@ -75,8 +76,7 @@ class ToF:
     
     def is_obstacle(self):
         dist = self.tof_distances()
-        return dist[3] - dist[2] + 80 > 80 and dist[1] - dist[2] + 80 > 80
-    
+        return dist[3] > dist[2] and dist[1] > dist[2]    
 
 tof = ToF()
 
@@ -117,6 +117,8 @@ class Action:
             7: motor.search
         }
         self.last_action = None
+        self.forwards_start_time = None
+        self.find_ball = False
 
     def situations(self):
         colors = ir.ir_colors()
@@ -129,7 +131,7 @@ class Action:
             colors[1] == 'B', # left
             colors[2] == 'B', # right
             False,
-            not tof.is_ball() # search
+            action.find_ball and not tof.is_ball() # search
         ]
 
     def move(self):
@@ -137,7 +139,17 @@ class Action:
             if state:
                 action = self.actions[i]
                 action()
-                self.last_action = action.__name__
+                action_name = action.__name__
+                
+                if action_name == "forwards":
+                    if self.forwards_start_time is None:
+                        self.forwards_start_time = time()
+                    elif time() - self.forwards_start_time >= 15:
+                        self.find_ball = True
+                else:
+                    self.forwards_start_time = None
+                
+                self.last_action = action_name
                 return self.last_action
         return self.last_action
 
@@ -154,30 +166,36 @@ class Screen:
         self.oled2 = OLEDSH1106(width=128, height=64, channel=7)
     
     def update_data(self):
-        """Fetch fresh data from sensors"""
+        """Etch fresh data from sensors"""
         self.dist = tof.tof_distances()
         self.col = ir.ir_colors()
         self.val = ir.ir_values()
         self.move = action.print_move()
-        self.message = "Ball Found" if tof.is_ball() else "Object Found" if tof.is_obstacle() else ""
+        self.mode = "Line" if not action.find_ball else "Save"
+        
+        if action.find_ball:
+            self.message = "Ball Found" if tof.is_ball() else "Searching Ball"
+        else:
+            self.message = "Obstacle Found" if tof.is_obstacle() else ""
         
     def fill_screen(self):
         self.update_data()
+        
         
         self.oled.fill('white')
         self.oled2.fill('white')
 
         self.oled.text(f"ToF Data:", 0, 2)
-        self.oled.text(f"S:{self.dist[0]} R:{self.dist[1]}", 0, 12)
-        self.oled.text(f"B:{self.dist[2]} L:{self.dist[3]}", 0, 22)
+        self.oled.text(f"S:{self.dist[0]} R:{self.dist[1]}", 3, 12)
+        self.oled.text(f"B:{self.dist[2]} L:{self.dist[3]}", 3, 22)
         self.oled.text(f"{self.move}", 0, 37)
-        self.oled.text(f"{self.message}", 0, 47)
+        self.oled.text(f"{self.mode}: {self.message}", 0, 47)
         
         self.oled2.text(f"IR Data:", 0, 2)
-        self.oled2.text(f"FL:{self.col[0]} {self.val[0]}", 0, 12)
-        self.oled2.text(f"L:{self.col[1]} {self.val[1]}", 0, 22)
-        self.oled2.text(f"R:{self.col[2]} {self.val[2]}", 0, 32)
-        self.oled2.text(f"FR:{self.col[3]} {self.val[3]}", 0, 42)
+        self.oled2.text(f"FL:{self.col[0]} {self.val[0]}", 3, 12)
+        self.oled2.text(f"L:{self.col[1]} {self.val[1]}", 3, 22)
+        self.oled2.text(f"R:{self.col[2]} {self.val[2]}", 3, 32)
+        self.oled2.text(f"FR:{self.col[3]} {self.val[3]}", 3, 42)
 
         self.oled.show()
         self.oled2.show()
@@ -186,23 +204,24 @@ class Screen:
         self.update_data()
         
         print(f"ToF Data:")
-        print(f"Side:{self.dist[0]} Right:{self.dist[1]}")
-        print(f"Bottom:{self.dist[2]} Left:{self.dist[3]}\n")
+        print(f"  Side:{self.dist[0]} Right:{self.dist[1]}")
+        print(f"  Bottom:{self.dist[2]} Left:{self.dist[3]}\n")
         
         print(f"Next Move: {self.move}")
-        print(f"{self.message}\n")
+        print(f"{self.mode}: {self.message}")
+        print(f"Find Ball: {action.find_ball}\n")
         
         print(f"IR Data:")
-        print(f"Far Left:{self.col[0]}, {self.val[0]}")
-        print(f"Left:{self.col[1]}, {self.val[1]}")
-        print(f"Right:{self.col[2]}, {self.val[2]}")
-        print(f"Far Right:{self.col[3]}, {self.val[3]}")        
+        print(f"  Far Left:{self.col[0]}, {self.val[0]}")
+        print(f"  Left:{self.col[1]}, {self.val[1]}")
+        print(f"  Right:{self.col[2]}, {self.val[2]}")
+        print(f"  Far Right:{self.col[3]}, {self.val[3]}")        
     
     def clear_screen(self):
         self.oled.fill('black')
-        self.oled.show()
-
         self.oled2.fill('black')
+        
+        self.oled.show()
         self.oled2.show()
 
 
@@ -212,8 +231,11 @@ screen = Screen()
 def main():
     while True:
         action.move()
+        screen.fill_terminal()
         screen.fill_screen()
+        
         sleep(0.2)
+
 
 if __name__ == "__main__":
     try:
@@ -222,3 +244,4 @@ if __name__ == "__main__":
         screen.clear_screen()
         motor.stop()
         print("Stopped")
+
